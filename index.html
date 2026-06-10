@@ -383,8 +383,8 @@
       </div>
       <div class="reveal">
         <form id="commission-form">
-          <div class="form-group"><label for="nome">Nome completo</label><input id="nome" type="text" placeholder="Seu nome"></div>
-          <div class="form-group"><label for="email">E-mail</label><input id="email" type="email" placeholder="seu@email.com"></div>
+          <div class="form-group"><label for="nome">Nome completo</label><input id="nome" type="text" placeholder="Seu nome" required></div>
+          <div class="form-group"><label for="email">E-mail</label><input id="email" type="email" placeholder="seu@email.com" required></div>
           <div class="form-group">
             <label for="tipo-obra">Tipo de obra</label>
             <select id="tipo-obra">
@@ -622,15 +622,19 @@
     const hamburger = document.getElementById('hamburger');
     const mobileNav = document.getElementById('nav-mobile');
 
-    hamburger.addEventListener('click', () => {
-      const isOpen = mobileNav.classList.toggle('open');
+    function setMobileMenuState(isOpen) {
+      mobileNav.classList.toggle('open', isOpen);
       hamburger.setAttribute('aria-expanded', String(isOpen));
+      hamburger.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+    }
+
+    hamburger.addEventListener('click', () => {
+      setMobileMenuState(!mobileNav.classList.contains('open'));
     });
 
     mobileNav.querySelectorAll('a').forEach((anchor) => {
       anchor.addEventListener('click', () => {
-        mobileNav.classList.remove('open');
-        hamburger.setAttribute('aria-expanded', 'false');
+        setMobileMenuState(false);
       });
     });
 
@@ -650,7 +654,7 @@
     }
 
     const sections = ['hero', 'sobre', 'estilo', 'obras', 'encomendas', 'contato'];
-    window.addEventListener('scroll', () => {
+    function updateActiveNav() {
       let current = '';
       sections.forEach((id) => {
         const section = document.getElementById(id);
@@ -662,7 +666,17 @@
       document.querySelectorAll('.nav-links a, .nav-mobile a').forEach((anchor) => {
         anchor.classList.toggle('active', anchor.getAttribute('href') === '#' + current);
       });
+    }
+
+    let activeNavFrame = null;
+    window.addEventListener('scroll', () => {
+      if (activeNavFrame !== null) return;
+      activeNavFrame = window.requestAnimationFrame(() => {
+        updateActiveNav();
+        activeNavFrame = null;
+      });
     }, { passive: true });
+    updateActiveNav();
 
     const commissionForm = document.getElementById('commission-form');
     const submitButton = commissionForm.querySelector('.btn-submit');
