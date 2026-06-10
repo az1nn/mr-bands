@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MR. BANDS — Arte Urbana · Rio de Janeiro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black: #121212;
+      --wall: #1A1815;
+      --white: #F0EDE8;
+      --orange: #FF5A00;
+      --yellow: #FFB300;
+      --teal: #00BFA5;
+      --concrete: #424242;
+      --shadow: #212121;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--white); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(18, 18, 18, .9); backdrop-filter: blur(10px); border-bottom: 2px solid var(--orange); padding: 0 5vw; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 1.1rem; letter-spacing: .2em; color: var(--white); text-decoration: none; }
+    .nav-logo span { color: var(--orange); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: .75rem; letter-spacing: .12em; color: #666; text-decoration: none; transition: color .2s; text-transform: uppercase; }
+    .nav-links a:hover, .nav-links a.active, .nav-mobile a.active { color: var(--orange); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--white); transition: .3s; }
+    .nav-mobile { display: none; position: fixed; top: 60px; left: 0; right: 0; background: rgba(18, 18, 18, .98); padding: 2rem; flex-direction: column; gap: 1.5rem; list-style: none; z-index: 99; border-top: 1px solid #333; }
+    .nav-mobile a { font-family: 'JetBrains Mono', monospace; font-size: .9rem; color: #666; text-decoration: none; letter-spacing: .15em; text-transform: uppercase; }
+    .nav-mobile.open { display: flex; }
+    @media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } }
+
+    #hero { position: relative; height: 100vh; min-height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 0 5vw; }
+    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero-content { position: relative; z-index: 2; text-align: center; }
+    .hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .35em; color: var(--teal); text-transform: uppercase; margin-bottom: 1rem; }
+    .hero-name { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: clamp(3.5rem, 11vw, 10rem); letter-spacing: .06em; line-height: .9; text-transform: uppercase; color: var(--white); }
+    .hero-name em { font-style: normal; color: var(--orange); display: block; }
+    .hero-tag { font-size: clamp(.85rem, 1.6vw, 1.05rem); color: #888; margin-top: 1.2rem; letter-spacing: .05em; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+    .hero-ctas { display: flex; gap: 1rem; margin-top: 2.5rem; justify-content: center; flex-wrap: wrap; }
+    .btn { font-family: 'JetBrains Mono', monospace; font-size: .75rem; letter-spacing: .15em; text-transform: uppercase; padding: .9rem 2.2rem; text-decoration: none; transition: all .25s; cursor: pointer; display: inline-block; border: none; }
+    .btn-primary { background: var(--orange); color: var(--black); font-weight: 700; }
+    .btn-primary:hover { background: var(--yellow); box-shadow: 0 0 24px rgba(255, 179, 0, .4); }
+    .btn-outline { background: transparent; color: var(--teal); border: 1px solid var(--teal); }
+    .btn-outline:hover { background: var(--teal); color: var(--black); box-shadow: 0 0 20px rgba(0, 191, 165, .3); }
+    .hero-stats { display: flex; gap: 3rem; margin-top: 3rem; justify-content: center; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-n { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 2rem; color: var(--orange); }
+    .stat-l { font-family: 'JetBrains Mono', monospace; font-size: .65rem; letter-spacing: .12em; color: #555; margin-top: .2rem; text-transform: uppercase; }
+    .scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: #333; letter-spacing: .25em; animation: bob 2s ease-in-out infinite; }
+    @keyframes bob { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-6px); } }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .75s ease, transform .75s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    section { padding: 8rem 5vw; }
+    .section-label { font-family: 'JetBrains Mono', monospace; font-size: .65rem; letter-spacing: .3em; color: #444; text-transform: uppercase; margin-bottom: .8rem; }
+    .section-title { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: .03em; text-transform: uppercase; line-height: 1.05; }
+    .accent-line { width: 60px; height: 3px; background: var(--orange); margin-top: .8rem; margin-bottom: 3rem; }
+
+    #sobre { background: var(--wall); }
+    .sobre-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+    @media (max-width: 768px) { .sobre-grid { grid-template-columns: 1fr; gap: 3rem; } }
+    .sobre-img { position: relative; aspect-ratio: 4 / 5; background: var(--concrete); overflow: hidden; }
+    .sobre-img-svg { width: 100%; height: 100%; }
+    .sobre-text p { color: #999; line-height: 1.9; margin-bottom: 1.4rem; font-size: .95rem; }
+    .sobre-text p strong, .tl-text strong { color: var(--white); }
+    .sobre-badges { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 2rem; }
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: .65rem; letter-spacing: .1em; padding: .35rem .85rem; border: 1px solid; text-transform: uppercase; }
+    .timeline { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .tl-item { display: flex; gap: 1.5rem; align-items: flex-start; }
+    .tl-year { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: .85rem; color: var(--orange); min-width: 48px; }
+    .tl-text { font-size: .88rem; color: #777; line-height: 1.6; border-left: 1px solid #2a2a2a; padding-left: 1rem; }
+    .tl-text strong { display: block; margin-bottom: .2rem; }
+
+    .marquee-wrap { overflow: hidden; border-top: 1px solid #222; border-bottom: 1px solid #222; padding: 1rem 0; background: #0f0e0d; margin-top: 5rem; }
+    .marquee-track { display: flex; gap: 2.5rem; width: max-content; animation: marquee 22s linear infinite; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .marquee-item { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: .95rem; letter-spacing: .2em; color: #2a2a2a; text-transform: uppercase; white-space: nowrap; }
+    .marquee-item.hi { color: var(--orange); }
+
+    #estilo { background: var(--black); }
+    .estilo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1rem; }
+    @media (max-width: 900px) { .estilo-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .estilo-grid { grid-template-columns: 1fr; } }
+    .estilo-card { background: var(--wall); padding: 2rem; border-top: 3px solid; position: relative; transition: transform .3s; }
+    .estilo-card:hover { transform: translateY(-4px); }
+    .estilo-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .estilo-card h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .8rem; }
+    .estilo-card p { font-size: .85rem; color: #666; line-height: 1.7; }
+
+    #obras { background: var(--wall); }
+    .filter-tabs { display: flex; gap: .6rem; margin-bottom: 3rem; flex-wrap: wrap; }
+    .tab { font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .1em; padding: .45rem 1.1rem; border: 1px solid #2a2a2a; color: #555; cursor: pointer; text-transform: uppercase; transition: all .2s; background: none; }
+    .tab.active, .tab:hover { border-color: var(--orange); color: var(--orange); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--black); position: relative; overflow: hidden; cursor: pointer; transition: transform .3s, box-shadow .3s; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(255, 90, 0, .2); }
+    .card-img { aspect-ratio: 1; position: relative; overflow: hidden; }
+    .card-svg { width: 100%; height: 100%; transition: transform .4s; }
+    .card:hover .card-svg { transform: scale(1.04); }
+    .card-overlay { position: absolute; inset: 0; background: rgba(18, 18, 18, .85); opacity: 0; display: flex; align-items: center; justify-content: center; transition: opacity .3s; }
+    .card:hover .card-overlay { opacity: 1; }
+    .card-overlay-btn { font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .15em; padding: .6rem 1.4rem; border: 1px solid var(--orange); text-transform: uppercase; color: var(--orange); cursor: pointer; background: transparent; transition: all .2s; }
+    .card-overlay-btn:hover { background: var(--orange); color: var(--black); }
+    .card-info { padding: 1.2rem; }
+    .card-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: .95rem; letter-spacing: .05em; text-transform: uppercase; }
+    .card-meta { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: #444; margin-top: .3rem; letter-spacing: .05em; }
+    .card-price { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1rem; margin-top: .5rem; color: var(--orange); }
+
+    #encomendas { background: var(--black); }
+    .enc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+    @media (max-width: 768px) { .enc-grid { grid-template-columns: 1fr; gap: 3rem; } }
+    .steps { display: flex; flex-direction: column; gap: 2.5rem; }
+    .step { display: flex; gap: 1.5rem; }
+    .step-geo { width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .step-num { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .1em; color: #444; margin-bottom: .3rem; text-transform: uppercase; }
+    .step-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; }
+    .step-desc { font-size: .85rem; color: #666; margin-top: .3rem; line-height: 1.7; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-family: 'JetBrains Mono', monospace; font-size: .65rem; letter-spacing: .15em; color: #444; text-transform: uppercase; margin-bottom: .45rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; background: #1a1815; border: 1px solid #2a2a2a; color: var(--white); padding: .8rem 1rem; font-family: 'Inter', sans-serif; font-size: .9rem; outline: none; transition: border-color .2s; -webkit-appearance: none; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--orange); }
+    .form-group textarea { min-height: 110px; resize: vertical; }
+    .form-group select option { background: #1a1815; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+    .btn-submit { width: 100%; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; background: var(--orange); color: var(--black); border: none; cursor: pointer; transition: all .25s; margin-top: .5rem; font-weight: 700; }
+    .btn-submit:hover { background: var(--yellow); box-shadow: 0 0 24px rgba(255, 179, 0, .3); }
+
+    .mural-banner { background: var(--shadow); border-left: 4px solid var(--orange); padding: 2rem; margin-bottom: 3rem; }
+    .mural-banner h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 1.3rem; letter-spacing: .05em; text-transform: uppercase; margin-bottom: .5rem; }
+    .mural-banner p { font-size: .88rem; color: #777; line-height: 1.7; }
+    .mural-banner span { color: var(--orange); }
+
+    #contato { background: #0a0908; position: relative; overflow: hidden; padding: 6rem 5vw; }
+    .contato-inner { position: relative; z-index: 2; text-align: center; }
+    .contato-name { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: clamp(2rem, 6vw, 5rem); letter-spacing: .1em; text-transform: uppercase; }
+    .contato-sub { font-family: 'JetBrains Mono', monospace; font-size: .75rem; letter-spacing: .2em; color: #333; margin-top: .5rem; text-transform: uppercase; }
+    .socials { display: flex; gap: 1.5rem; justify-content: center; margin: 2.5rem 0; flex-wrap: wrap; }
+    .social-link { display: flex; align-items: center; gap: .6rem; font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .1em; color: #444; text-decoration: none; text-transform: uppercase; transition: color .2s; }
+    .social-link:hover { color: var(--orange); }
+    .social-icon { width: 40px; height: 40px; border: 1px solid #222; display: flex; align-items: center; justify-content: center; transition: border-color .2s; font-size: 1.1rem; }
+    .social-link:hover .social-icon { border-color: var(--orange); }
+    .contato-email { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; color: #444; letter-spacing: .05em; }
+    .contato-email a { color: var(--teal); text-decoration: none; }
+    .contato-email a:hover { text-decoration: underline; }
+    .geo-wm { position: absolute; bottom: -4rem; right: -3rem; opacity: .03; pointer-events: none; user-select: none; }
+    .copyright { margin-top: 4rem; font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: #222; letter-spacing: .15em; text-transform: uppercase; }
+
+    .paleta { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 2rem; }
+    .swatch { height: 40px; flex: 1; min-width: 60px; display: flex; align-items: flex-end; padding: .3rem .5rem; }
+    .swatch span { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .05em; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#hero" class="nav-logo">MR.<span>BANDS</span></a>
+    <ul class="nav-links">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#estilo">Estilo</a></li>
+      <li><a href="#obras">Obras</a></li>
+      <li><a href="#encomendas">Encomendas</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" type="button" aria-expanded="false" aria-controls="nav-mobile" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <ul class="nav-mobile" id="nav-mobile" aria-hidden="true">
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#estilo">Estilo</a></li>
+    <li><a href="#obras">Obras</a></li>
+    <li><a href="#encomendas">Encomendas</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+
+  <section id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Arte Urbana · Rio de Janeiro · Desde 1999</p>
+      <h1 class="hero-name">Mr.<em>Bands</em></h1>
+      <p class="hero-tag">Geometria que desafia o olhar. Cor que habita o concreto. Muralismo contemporâneo nascido na Zona Norte do Rio.</p>
+      <div class="hero-ctas">
+        <a href="#obras" class="btn btn-primary">Ver Obras</a>
+        <a href="#encomendas" class="btn btn-outline">Encomendar</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-n">25+</div><div class="stat-l">Anos ativos</div></div>
+        <div class="stat"><div class="stat-n">1.000m²</div><div class="stat-l">Maior mural</div></div>
+        <div class="stat"><div class="stat-n">2017</div><div class="stat-l">Prêmio PIPA</div></div>
+      </div>
+    </div>
+    <span class="scroll-hint">↓ scroll</span>
+  </section>
+
+  <section id="sobre">
+    <div class="reveal">
+      <p class="section-label">// 01 — artista</p>
+      <h2 class="section-title">Mario Bands</h2>
+      <div class="accent-line"></div>
+    </div>
+    <div class="sobre-grid">
+      <div class="reveal">
+        <div class="sobre-img">
+          <svg class="sobre-img-svg" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" aria-label="Ilustração geométrica de pássaro em estilo muralista">
+            <rect width="400" height="500" fill="#1a1815"/>
+            <polygon points="200,80 320,280 200,340 80,280" fill="#FF5A00" opacity=".9"/>
+            <polygon points="200,80 320,280 200,200" fill="#FFB300" opacity=".85"/>
+            <polygon points="200,80 80,280 200,200" fill="#FF7A20" opacity=".8"/>
+            <polygon points="200,340 320,280 200,420" fill="#424242"/>
+            <polygon points="200,340 80,280 200,420" fill="#212121"/>
+            <polygon points="80,280 20,180 130,220" fill="#00BFA5" opacity=".7"/>
+            <polygon points="320,280 380,180 270,220" fill="#00BFA5" opacity=".6"/>
+            <line x1="90" y1="260" x2="170" y2="130" stroke="#121212" stroke-width="1.5"/>
+            <line x1="105" y1="270" x2="175" y2="160" stroke="#121212" stroke-width="1.5"/>
+            <line x1="120" y1="278" x2="185" y2="190" stroke="#121212" stroke-width="1.5"/>
+            <line x1="310" y1="260" x2="230" y2="130" stroke="#FFE082" stroke-width="1.5"/>
+            <line x1="295" y1="270" x2="225" y2="160" stroke="#FFE082" stroke-width="1.5"/>
+            <line x1="280" y1="278" x2="215" y2="190" stroke="#FFE082" stroke-width="1.5"/>
+            <polygon points="200,80 230,120 200,110 170,120" fill="#FFB300"/>
+            <circle cx="210" cy="100" r="5" fill="#121212"/>
+            <circle cx="211" cy="99" r="2" fill="#FFB300"/>
+            <text x="20" y="480" font-family="monospace" font-size="10" fill="#2a2a2a" letter-spacing="3">GEOMETRIA · COR · FORMA</text>
+          </svg>
+        </div>
+      </div>
+      <div class="sobre-text reveal">
+        <p>Mario Bands nasceu em 1985 e cresceu no bairro da <strong>Penha, Zona Norte do Rio de Janeiro</strong>. Arte-educador, comunicador e interventor urbano, ele começou sua trajetória no graffiti em 1999 — e nunca parou.</p>
+        <p>Graduado em Publicidade e Propaganda, Bands elevou a linguagem do mural a um território entre a <strong>ilusão de óptica, geometria precisa e força cromática</strong>. Suas obras deslocam o olhar, criam profundidade onde não existe e transformam concreto em geometria viva.</p>
+        <p>Em 2017, foi indicado ao <strong>Prêmio PIPA</strong> — um dos mais importantes da arte contemporânea brasileira. Seu maior legado urbano é um mural de <strong>1.000 m²</strong> no Porto Maravilha, Rio de Janeiro, para a sede da Bradesco Seguros.</p>
+        <div class="sobre-badges">
+          <span class="badge" style="border-color:var(--orange);color:var(--orange)">Graffiti</span>
+          <span class="badge" style="border-color:var(--teal);color:var(--teal)">Muralismo</span>
+          <span class="badge" style="border-color:var(--yellow);color:var(--yellow)">Arte-educação</span>
+          <span class="badge" style="border-color:#666;color:#666">Penha · RJ</span>
+        </div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-year">1999</div><div class="tl-text"><strong>Início no graffiti</strong> Primeiras intervenções nas ruas da Zona Norte carioca.</div></div>
+          <div class="tl-item"><div class="tl-year">2017</div><div class="tl-text"><strong>Prêmio PIPA</strong> Indicação ao principal prêmio de arte contemporânea do Brasil.</div></div>
+          <div class="tl-item"><div class="tl-year">Porto</div><div class="tl-text"><strong>Mural 1.000 m²</strong> Porto Maravilha · Bradesco Seguros — maior obra de escala.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="marquee-wrap">
+      <div class="marquee-track">
+        <span class="marquee-item hi">GEOMETRIA</span><span class="marquee-item">·</span>
+        <span class="marquee-item">COR</span><span class="marquee-item">·</span>
+        <span class="marquee-item hi">ILUSÃO</span><span class="marquee-item">·</span>
+        <span class="marquee-item">MURO</span><span class="marquee-item">·</span>
+        <span class="marquee-item hi">PENHA</span><span class="marquee-item">·</span>
+        <span class="marquee-item">RIO DE JANEIRO</span><span class="marquee-item">·</span>
+        <span class="marquee-item hi">PIPA 2017</span><span class="marquee-item">·</span>
+        <span class="marquee-item">NATUREZA</span><span class="marquee-item">·</span>
+        <span class="marquee-item hi">GEOMETRIA</span><span class="marquee-item">·</span>
+        <span class="marquee-item">COR</span><span class="marquee-item">·</span>
+        <span class="marquee-item hi">ILUSÃO</span><span class="marquee-item">·</span>
+        <span class="marquee-item">MURO</span><span class="marquee-item">·</span>
+        <span class="marquee-item hi">PENHA</span><span class="marquee-item">·</span>
+        <span class="marquee-item">RIO DE JANEIRO</span><span class="marquee-item">·</span>
+        <span class="marquee-item hi">PIPA 2017</span><span class="marquee-item">·</span>
+        <span class="marquee-item">NATUREZA</span><span class="marquee-item">·</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="estilo">
+    <div class="reveal">
+      <p class="section-label">// 02 — linguagem</p>
+      <h2 class="section-title">Identidade Visual</h2>
+      <div class="accent-line" style="background:var(--teal)"></div>
+    </div>
+    <div class="estilo-grid reveal">
+      <div class="estilo-card" style="border-color:var(--orange)">
+        <div class="estilo-icon">📐</div>
+        <h3>Geometria & Ilusão</h3>
+        <p>Uso intenso de formas geométricas precisas para deslocar elementos, confundir e trair o olhar — inserindo novas dimensões em superfícies planas.</p>
+      </div>
+      <div class="estilo-card" style="border-color:var(--yellow)">
+        <div class="estilo-icon">🔆</div>
+        <h3>Luz e Sombra</h3>
+        <p>Precisão extrema no trabalho com cores, luzes e sombras. Cada plano cromático é calculado para criar profundidade tridimensional onde não existe volume real.</p>
+      </div>
+      <div class="estilo-card" style="border-color:var(--teal)">
+        <div class="estilo-icon">🐦</div>
+        <h3>Pássaro Geométrico</h3>
+        <p>Marca de fase. Pássaros altamente geométricos onde linhas não estruturam apenas a forma — servem para criar texturas e adicionar interesse visual à composição.</p>
+      </div>
+      <div class="estilo-card" style="border-color:var(--orange)">
+        <div class="estilo-icon">🌿</div>
+        <h3>Transição Orgânica</h3>
+        <p>Evolução para traços mais fluidos e orgânicos, estabelecendo um diálogo direto entre a rigidez geométrica e os elementos da natureza.</p>
+      </div>
+      <div class="estilo-card" style="border-color:var(--yellow)">
+        <div class="estilo-icon">🧱</div>
+        <h3>Multisuportes</h3>
+        <p>Muros, telas, garrafas e objetos cotidianos. Bands busca nas ruas os suportes para o seu gesto artístico, frequentemente em locais fora do circuito tradicional.</p>
+      </div>
+      <div class="estilo-card" style="border-color:var(--teal)">
+        <div class="estilo-icon">🎨</div>
+        <h3>Paleta Urbana</h3>
+        <p>Laranja vibrante, amarelo-luz, verde natureza e concreto. Cores que pertencem à cidade e à rua — quentes, presentes, impossíveis de ignorar.</p>
+      </div>
+    </div>
+    <div class="paleta reveal">
+      <div class="swatch" style="background:#FF5A00"><span style="color:#121212">Laranja</span></div>
+      <div class="swatch" style="background:#FFB300"><span style="color:#121212">Amarelo</span></div>
+      <div class="swatch" style="background:#00BFA5"><span>Verde</span></div>
+      <div class="swatch" style="background:#424242"><span>Concreto</span></div>
+      <div class="swatch" style="background:#121212;border:1px solid #2a2a2a"><span style="color:#444">Fundo</span></div>
+    </div>
+  </section>
+
+  <section id="obras">
+    <div class="reveal">
+      <p class="section-label">// 03 — galeria</p>
+      <h2 class="section-title">Obras</h2>
+      <div class="accent-line" style="background:var(--yellow)"></div>
+    </div>
+    <div class="mural-banner reveal">
+      <h3>Mural Porto Maravilha — <span>1.000 m²</span></h3>
+      <p>A maior intervenção de Mario Bands, realizada para a sede da Bradesco Seguros no Porto Maravilha, Rio de Janeiro. Uma composição geométrica monumental que transforma a paisagem urbana da cidade.</p>
+    </div>
+    <div class="filter-tabs reveal" id="filter-tabs">
+      <button class="tab active" type="button" data-category="all">Todos</button>
+      <button class="tab" type="button" data-category="mural">Murais</button>
+      <button class="tab" type="button" data-category="tela">Telas</button>
+      <button class="tab" type="button" data-category="objeto">Objetos</button>
+    </div>
+    <div class="grid reveal" id="cards-grid"></div>
+  </section>
+
+  <section id="encomendas">
+    <div class="reveal">
+      <p class="section-label">// 04 — comissões</p>
+      <h2 class="section-title">Encomendar uma Obra</h2>
+      <div class="accent-line"></div>
+    </div>
+    <div class="enc-grid">
+      <div class="steps reveal">
+        <div class="step">
+          <div class="step-geo">
+            <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><polygon points="24,4 44,40 4,40" fill="none" stroke="#FF5A00" stroke-width="2"/><text x="20" y="36" font-size="14" fill="#FF5A00" font-family="monospace">1</text></svg>
+          </div>
+          <div>
+            <p class="step-num">Etapa 01</p>
+            <p class="step-title">Consulta</p>
+            <p class="step-desc">Você descreve o espaço, as dimensões e a intenção da obra. Ambiente externo ou interno, escala urbana ou doméstica — tudo é possível.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-geo">
+            <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><polygon points="24,4 44,24 24,44 4,24" fill="none" stroke="#FFB300" stroke-width="2"/><text x="20" y="30" font-size="14" fill="#FFB300" font-family="monospace">2</text></svg>
+          </div>
+          <div>
+            <p class="step-num">Etapa 02</p>
+            <p class="step-title">Proposta</p>
+            <p class="step-desc">Em até 5 dias úteis, apresento esboços da composição geométrica, paleta e orçamento detalhado. Ajustamos até o equilíbrio certo.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-geo">
+            <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><polygon points="24,4 44,14 44,34 24,44 4,34 4,14" fill="none" stroke="#00BFA5" stroke-width="2"/><text x="20" y="30" font-size="14" fill="#00BFA5" font-family="monospace">3</text></svg>
+          </div>
+          <div>
+            <p class="step-num">Etapa 03</p>
+            <p class="step-title">Criação</p>
+            <p class="step-desc">Com aprovação e sinal confirmado, inicio a produção. Você acompanha o processo com registros visuais até a entrega ou inauguração.</p>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <form id="commission-form">
+          <div id="form-status" class="sr-only" role="status" aria-live="polite"></div>
+          <div class="form-group"><label for="nome">Nome completo</label><input id="nome" type="text" placeholder="Seu nome" required></div>
+          <div class="form-group"><label for="email">E-mail</label><input id="email" type="email" placeholder="seu@email.com" required></div>
+          <div class="form-group">
+            <label for="tipo-obra">Tipo de obra</label>
+            <select id="tipo-obra">
+              <option value="">Selecione...</option>
+              <option>Mural Externo</option>
+              <option>Mural Interno</option>
+              <option>Tela Original</option>
+              <option>Objeto / Escultura</option>
+              <option>Intervenção Urbana</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label for="dimensoes">Dimensões</label><input id="dimensoes" type="text" placeholder="ex: 4×6m"></div>
+            <div class="form-group"><label for="orcamento">Orçamento</label><input id="orcamento" type="text" placeholder="ex: R$ 8.000"></div>
+          </div>
+          <div class="form-group"><label for="mensagem">Mensagem</label><textarea id="mensagem" placeholder="Descreva o espaço, a paleta, a intenção emocional da obra. Quanto mais detalhe, mais precisa a proposta."></textarea></div>
+          <button class="btn-submit" type="submit">Enviar Encomenda</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato">
+    <svg class="geo-wm" width="500" height="500" viewBox="0 0 200 200" aria-hidden="true"><polygon points="100,10 190,55 190,145 100,190 10,145 10,55" fill="none" stroke="#FF5A00" stroke-width="1"/></svg>
+    <div class="contato-inner reveal">
+      <h2 class="contato-name">Mr. Bands</h2>
+      <p class="contato-sub">Penha · Rio de Janeiro · Brasil</p>
+      <div class="socials">
+        <a href="#" class="social-link"><div class="social-icon">📷</div><span>Instagram</span></a>
+        <a href="#" class="social-link"><div class="social-icon">💬</div><span>WhatsApp</span></a>
+        <a href="#" class="social-link"><div class="social-icon">🎨</div><span>Behance</span></a>
+      </div>
+      <p class="contato-email"><a href="mailto:contato@mrbands.art">contato@mrbands.art</a></p>
+      <p class="copyright">© 2025 Mario Bands (Mr. Bands) — Arte Urbana · Rio de Janeiro. Todos os direitos reservados.</p>
+    </div>
+  </section>
+
+  <script>
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const canvas = document.getElementById('hero-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0;
+    let height = 0;
+    let time = 0;
+
+    function resizeCanvas() {
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const palette = ['#FF5A00', '#FFB300', '#00BFA5', '#424242', '#FF7A20'];
+    const shards = Array.from({ length: 18 }, () => ({
+      x: Math.random() * 800,
+      y: Math.random() * 600,
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: (Math.random() - 0.5) * 0.12,
+      size: Math.random() * 60 + 20,
+      color: palette[Math.floor(Math.random() * palette.length)],
+      rotation: Math.random() * Math.PI * 2,
+      rotationVelocity: (Math.random() - 0.5) * 0.005,
+      alpha: Math.random() * 0.12 + 0.04
+    }));
+
+    function drawShard(shard) {
+      ctx.save();
+      ctx.translate(shard.x, shard.y);
+      ctx.rotate(shard.rotation);
+      ctx.globalAlpha = shard.alpha;
+      ctx.beginPath();
+      ctx.moveTo(0, -shard.size);
+      ctx.lineTo(shard.size * 0.8, shard.size * 0.5);
+      ctx.lineTo(-shard.size * 0.8, shard.size * 0.5);
+      ctx.closePath();
+      ctx.fillStyle = shard.color;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    const phi = (1 + Math.sqrt(5)) / 2;
+    const vertices = [[0, 1, phi], [0, -1, phi], [0, 1, -phi], [0, -1, -phi], [1, phi, 0], [-1, phi, 0], [1, -phi, 0], [-1, -phi, 0], [phi, 0, 1], [phi, 0, -1], [-phi, 0, 1], [-phi, 0, -1]];
+    const faces = [[0, 1, 8], [0, 4, 8], [8, 9, 4], [4, 9, 3], [3, 9, 6], [1, 6, 8], [6, 1, 7], [7, 1, 10], [10, 1, 0], [10, 0, 5], [5, 0, 4], [5, 4, 2], [2, 4, 3], [2, 3, 11], [11, 3, 6], [11, 6, 7], [7, 10, 11], [11, 10, 5], [2, 11, 5], [2, 9, 3]];
+
+    function project(vertex, rotationX, rotationY) {
+      const [x, y, z] = vertex;
+      const y1 = y * Math.cos(rotationX) - z * Math.sin(rotationX);
+      const z1 = y * Math.sin(rotationX) + z * Math.cos(rotationX);
+      const x2 = x * Math.cos(rotationY) + z1 * Math.sin(rotationY);
+      const z2 = -x * Math.sin(rotationY) + z1 * Math.cos(rotationY);
+      const factor = 280 / (280 + z2 * 25);
+      return [width / 2 + x2 * factor * 65, height / 2 + y1 * factor * 65, z2];
+    }
+
+    function renderHeroFrame() {
+      time += 0.004;
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#121212';
+      ctx.fillRect(0, 0, width, height);
+
+      shards.forEach((shard) => {
+        shard.x = ((shard.x + shard.vx) + width) % width;
+        shard.y = ((shard.y + shard.vy) + height) % height;
+        shard.rotation += shard.rotationVelocity;
+        drawShard(shard);
+      });
+
+      const rotationX = time * 0.3;
+      const rotationY = time * 0.5;
+      const projected = vertices.map((vertex) => project(vertex, rotationX, rotationY));
+      const sortedFaces = faces
+        .map((face, index) => ({
+          face,
+          index,
+          z: (projected[face[0]][2] + projected[face[1]][2] + projected[face[2]][2]) / 3
+        }))
+        .sort((a, b) => a.z - b.z);
+
+      sortedFaces.forEach(({ face, index }) => {
+        const [a, b, c] = face.map((faceIndex) => projected[faceIndex]);
+        const color = palette[index % palette.length];
+        ctx.beginPath();
+        ctx.moveTo(a[0], a[1]);
+        ctx.lineTo(b[0], b[1]);
+        ctx.lineTo(c[0], c[1]);
+        ctx.closePath();
+        ctx.fillStyle = color + '14';
+        ctx.strokeStyle = color + '88';
+        ctx.lineWidth = 0.7;
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      requestAnimationFrame(renderHeroFrame);
+    }
+
+    if (prefersReducedMotion) {
+      ctx.fillStyle = '#121212';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+      renderHeroFrame();
+    }
+
+    const artworks = [
+      { title: 'Pássaro da Penha', meta: 'Mural · Zona Norte · Rio de Janeiro', price: 'Acervo', category: 'mural', color: '#FF5A00' },
+      { title: 'Tesserato Urbano', meta: 'Tela Original · 100×120cm', price: 'R$ 4.800', category: 'tela', color: '#FFB300' },
+      { title: 'Deslocamento #3', meta: 'Mural · Porto Maravilha', price: 'Acervo', category: 'mural', color: '#00BFA5' },
+      { title: 'Fragmento Verde', meta: 'Tela Original · 80×80cm', price: 'R$ 2.600', category: 'tela', color: '#FF5A00' },
+      { title: 'Garrafa Geométrica', meta: 'Objeto · Garrafa · 30cm', price: 'R$ 480', category: 'objeto', color: '#FFB300' },
+      { title: 'Ilusão Carioca', meta: 'Mural · Centro · Rio de Janeiro', price: 'Acervo', category: 'mural', color: '#00BFA5' },
+      { title: 'Planos em Fusão', meta: 'Tela Original · 60×90cm', price: 'R$ 3.200', category: 'tela', color: '#FF5A00' },
+      { title: 'Objeto Penha #1', meta: 'Objeto · Resina · 25cm', price: 'R$ 720', category: 'objeto', color: '#FFB300' },
+      { title: 'Triangulação 5', meta: 'Tela Original · 50×50cm', price: 'R$ 1.800', category: 'tela', color: '#00BFA5' }
+    ];
+
+    function birdSVG(color) {
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <rect width="200" height="200" fill="#1a1815"/>
+        <polygon points="100,30 160,130 100,160 40,130" fill="${color}" opacity=".85"/>
+        <polygon points="100,30 160,130 100,95" fill="${color}cc"/>
+        <polygon points="100,30 40,130 100,95" fill="${color}99"/>
+        <polygon points="100,160 160,130 100,185" fill="#424242"/>
+        <polygon points="100,160 40,130 100,185" fill="#212121"/>
+        <line x1="50" y1="115" x2="90" y2="55" stroke="#000" stroke-width="1.2"/>
+        <line x1="62" y1="122" x2="94" y2="75" stroke="#000" stroke-width="1.2"/>
+        <line x1="150" y1="115" x2="110" y2="55" stroke="#ffe08288" stroke-width="1.2"/>
+        <line x1="138" y1="122" x2="106" y2="75" stroke="#ffe08288" stroke-width="1.2"/>
+      </svg>`;
+    }
+
+    function wallSVG(color) {
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <rect width="200" height="200" fill="#1a1815"/>
+        <polygon points="0,200 100,40 200,200" fill="${color}" opacity=".7"/>
+        <polygon points="0,200 100,40 0,80" fill="${color}88"/>
+        <polygon points="200,200 100,40 200,80" fill="${color}55"/>
+        <line x1="30" y1="170" x2="85" y2="70" stroke="#000" stroke-width="1.5"/>
+        <line x1="55" y1="180" x2="92" y2="95" stroke="#000" stroke-width="1.5"/>
+        <line x1="170" y1="170" x2="115" y2="70" stroke="#ffffff22" stroke-width="1.5"/>
+        <rect x="0" y="190" width="200" height="10" fill="#424242"/>
+      </svg>`;
+    }
+
+    function objectSVG(color) {
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <rect width="200" height="200" fill="#1a1815"/>
+        <polygon points="100,20 180,80 160,170 40,170 20,80" fill="${color}" opacity=".7"/>
+        <polygon points="100,20 180,80 100,100" fill="${color}cc"/>
+        <polygon points="100,20 20,80 100,100" fill="${color}88"/>
+        <polygon points="40,170 160,170 100,100" fill="#424242"/>
+        <circle cx="100" cy="100" r="18" fill="#121212" opacity=".8"/>
+        <circle cx="100" cy="100" r="8" fill="${color}"/>
+        <line x1="35" y1="75" x2="95" y2="30" stroke="#ffffff22" stroke-width="1.2"/>
+        <line x1="165" y1="75" x2="105" y2="30" stroke="#00000066" stroke-width="1.2"/>
+      </svg>`;
+    }
+
+    const cardsGrid = document.getElementById('cards-grid');
+    const filterTabs = document.getElementById('filter-tabs');
+
+    function buildCards(filter = 'all') {
+      cardsGrid.innerHTML = '';
+      artworks
+        .filter((artwork) => filter === 'all' || artwork.category === filter)
+        .forEach((artwork) => {
+          const svg = artwork.category === 'mural'
+            ? wallSVG(artwork.color)
+            : artwork.category === 'objeto'
+              ? objectSVG(artwork.color)
+              : birdSVG(artwork.color);
+
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `<div class="card-img"><div class="card-svg">${svg}</div>
+            <div class="card-overlay"><button class="card-overlay-btn" type="button">Ver Detalhes</button></div></div>
+            <div class="card-info"><p class="card-title">${artwork.title}</p><p class="card-meta">${artwork.meta}</p>
+            <p class="card-price" style="color:${artwork.color}">${artwork.price}</p></div>`;
+          cardsGrid.appendChild(card);
+        });
+    }
+
+    buildCards();
+
+    filterTabs.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-category]');
+      if (!button) return;
+
+      filterTabs.querySelectorAll('.tab').forEach((tab) => tab.classList.remove('active'));
+      button.classList.add('active');
+      buildCards(button.dataset.category);
+    });
+
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('nav-mobile');
+
+    function setMobileMenuState(isOpen) {
+      mobileNav.classList.toggle('open', isOpen);
+      mobileNav.setAttribute('aria-hidden', String(!isOpen));
+      hamburger.setAttribute('aria-expanded', String(isOpen));
+      hamburger.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+    }
+
+    hamburger.addEventListener('click', () => {
+      setMobileMenuState(!mobileNav.classList.contains('open'));
+    });
+
+    mobileNav.querySelectorAll('a').forEach((anchor) => {
+      anchor.addEventListener('click', () => {
+        setMobileMenuState(false);
+      });
+    });
+
+    const revealElements = document.querySelectorAll('.reveal');
+    if (prefersReducedMotion) {
+      revealElements.forEach((element) => element.classList.add('visible'));
+    } else {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      revealElements.forEach((element) => observer.observe(element));
+    }
+
+    const sections = ['hero', 'sobre', 'estilo', 'obras', 'encomendas', 'contato'];
+    function updateActiveNav() {
+      let current = '';
+      sections.forEach((id) => {
+        const section = document.getElementById(id);
+        if (section && window.scrollY >= section.offsetTop - 100) {
+          current = id;
+        }
+      });
+
+      document.querySelectorAll('.nav-links a, .nav-mobile a').forEach((anchor) => {
+        anchor.classList.toggle('active', anchor.getAttribute('href') === '#' + current);
+      });
+    }
+
+    let activeNavFrame = null;
+    window.addEventListener('scroll', () => {
+      if (activeNavFrame !== null) return;
+      activeNavFrame = window.requestAnimationFrame(() => {
+        updateActiveNav();
+        activeNavFrame = null;
+      });
+    }, { passive: true });
+    updateActiveNav();
+
+    const commissionForm = document.getElementById('commission-form');
+    const submitButton = commissionForm.querySelector('.btn-submit');
+    const formStatus = document.getElementById('form-status');
+
+    commissionForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      submitButton.textContent = '✓ Enviado com sucesso!';
+      submitButton.style.background = 'var(--teal)';
+      formStatus.textContent = 'Encomenda enviada com sucesso.';
+      window.setTimeout(() => {
+        submitButton.textContent = 'Enviar Encomenda';
+        submitButton.style.background = '';
+        formStatus.textContent = '';
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
